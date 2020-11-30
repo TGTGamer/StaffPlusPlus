@@ -5,6 +5,8 @@ import net.shortninja.staffplus.authentication.AuthenticationConfiguration;
 import net.shortninja.staffplus.authentication.AuthenticationConfigurationLoader;
 import net.shortninja.staffplus.server.chat.blacklist.BlackListConfiguration;
 import net.shortninja.staffplus.server.chat.blacklist.BlackListConfigurationLoader;
+import net.shortninja.staffplus.session.config.SessionSyncConfiguration;
+import net.shortninja.staffplus.session.config.SessionSynchronizationConfigLoader;
 import net.shortninja.staffplus.staff.altaccountdetect.config.AltDetectConfiguration;
 import net.shortninja.staffplus.staff.altaccountdetect.config.AltDetectModuleLoader;
 import net.shortninja.staffplus.staff.ban.config.BanConfiguration;
@@ -63,6 +65,7 @@ public class Options implements IOptions {
     public BanConfiguration banConfiguration;
     public AltDetectConfiguration altDetectConfiguration;
     public StaffChatConfiguration staffChatConfiguration;
+    public SessionSyncConfiguration sessionSyncConfiguration;
 
     /*
      * Vanish
@@ -323,6 +326,7 @@ public class Options implements IOptions {
         banConfiguration = new BanModuleLoader().loadConfig();
         altDetectConfiguration = new AltDetectModuleLoader().loadConfig();
         staffChatConfiguration = new StaffChatModuleLoader().loadConfig();
+        sessionSyncConfiguration = new SessionSynchronizationConfigLoader().loadConfig();
 
         /*
          * Vanish

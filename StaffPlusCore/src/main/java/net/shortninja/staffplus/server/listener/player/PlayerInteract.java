@@ -3,9 +3,10 @@ package net.shortninja.staffplus.server.listener.player;
 import be.garagepoort.staffplusplus.craftbukkit.common.IProtocol;
 import net.shortninja.staffplus.IocContainer;
 import net.shortninja.staffplus.StaffPlus;
+import net.shortninja.staffplus.session.PlayerSession;
+import net.shortninja.staffplus.session.SessionManager;
 import net.shortninja.staffplus.staff.freeze.FreezeHandler;
 import net.shortninja.staffplus.staff.freeze.FreezeRequest;
-import net.shortninja.staffplus.staff.mode.ModeCoordinator;
 import net.shortninja.staffplus.staff.mode.handler.CpsHandler;
 import net.shortninja.staffplus.staff.mode.handler.GadgetHandler;
 import net.shortninja.staffplus.staff.mode.item.ModuleConfiguration;
@@ -34,7 +35,7 @@ public class PlayerInteract implements Listener {
     private static final Map<Player, Long> staffTimings = new HashMap<>();
 
     private final IProtocol versionProtocol = StaffPlus.get().versionProtocol;
-    private final ModeCoordinator modeCoordinator = IocContainer.getModeCoordinator();
+    private final SessionManager sessionManager = IocContainer.getSessionManager();
     private final CpsHandler cpsHandler = StaffPlus.get().cpsHandler;
     private final GadgetHandler gadgetHandler = StaffPlus.get().gadgetHandler;
     private final FreezeHandler freezeHandler = IocContainer.getFreezeHandler();
@@ -55,11 +56,13 @@ public class PlayerInteract implements Listener {
             cpsHandler.updateCount(uuid);
         }
 
-        if (!modeCoordinator.isInMode(uuid) || item == null) {
+        PlayerSession playerSession = sessionManager.get(uuid);
+
+        if (!playerSession.isInStaffMode() || item == null) {
             return;
         }
 
-        if (staffCheckingChest(event, player)) {
+        if (staffCheckingChest(event, player, playerSession)) {
             event.setCancelled(true);
             Container container = (Container) event.getClickedBlock().getState();
 
@@ -91,16 +94,16 @@ public class PlayerInteract implements Listener {
             return;
         }
 
-        if (modeCoordinator.isInMode(uuid)) {
+        if (playerSession.isInStaffMode()) {
             if (handleInteraction(player, item, action)) {
                 event.setCancelled(true);
             }
         }
     }
 
-    private boolean staffCheckingChest(PlayerInteractEvent event, Player player) {
+    private boolean staffCheckingChest(PlayerInteractEvent event, Player player, PlayerSession playerSession) {
         return event.getClickedBlock() != null && event.getClickedBlock().getState() instanceof Container
-            && modeCoordinator.isInMode(event.getPlayer().getUniqueId())
+            && playerSession.isInStaffMode()
             && !player.isSneaking();
     }
 

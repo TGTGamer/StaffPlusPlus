@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SessionManager {
     private static Map<UUID, PlayerSession> playerSessions;
@@ -23,7 +24,9 @@ public class SessionManager {
     }
 
     public Collection<PlayerSession> getAll() {
-        return playerSessions.values();
+        return playerSessions.values().stream()
+            .filter(p -> p.getSspPlayer().isOnline())
+            .collect(Collectors.toList());
     }
 
     public PlayerSession get(UUID uuid) {

@@ -1,11 +1,13 @@
 package net.shortninja.staffplus.staff.mode;
 
 import net.shortninja.staffplus.StaffPlus;
+import net.shortninja.staffplus.player.SppPlayer;
 import net.shortninja.staffplus.player.attribute.InventorySerializer;
 import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.server.data.config.Options;
 import net.shortninja.staffplus.session.PlayerSession;
 import net.shortninja.staffplus.session.SessionManager;
+import net.shortninja.staffplus.session.bungee.BungeeSessionManager;
 import net.shortninja.staffplus.staff.mode.item.ModeItem;
 import net.shortninja.staffplus.staff.mode.item.ModuleConfiguration;
 import net.shortninja.staffplus.staff.vanish.VanishHandler;
@@ -19,8 +21,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public class ModeCoordinator {
+public class StaffModeService {
     private static final Map<UUID, InventoryVault> staffMembersSavedData = new HashMap<>();
 
     private final MessageCoordinator message;
@@ -28,15 +31,17 @@ public class ModeCoordinator {
     private final Messages messages;
     private final SessionManager sessionManager;
     private final VanishHandler vanishHandler;
+    private final BungeeSessionManager bungeeSessionManager;
 
     public final ModeItem[] MODE_ITEMS;
 
-    public ModeCoordinator(MessageCoordinator message, Options options, Messages messages, SessionManager sessionManager, VanishHandler vanishHandler) {
+    public StaffModeService(MessageCoordinator message, Options options, Messages messages, SessionManager sessionManager, VanishHandler vanishHandler, BungeeSessionManager bungeeSessionManager) {
         this.message = message;
         this.options = options;
         this.messages = messages;
         this.sessionManager = sessionManager;
         this.vanishHandler = vanishHandler;
+        this.bungeeSessionManager = bungeeSessionManager;
 
         MODE_ITEMS = new ModeItem[]{
             new ModeItem("compass", options.modeCompassItem, options.modeCompassSlot, options.modeCompassEnabled),
@@ -51,20 +56,21 @@ public class ModeCoordinator {
         };
     }
 
-    public Set<UUID> getModeUsers() {
-        return staffMembersSavedData.keySet();
-    }
-
-    public boolean isInMode(UUID uuid) {
-        return staffMembersSavedData.containsKey(uuid);
+    public List<SppPlayer> getModeUsers() {
+        return sessionManager.getAll().stream()
+            .filter(PlayerSession::isInStaffMode)
+            .map(PlayerSession::getSspPlayer).collect(Collectors.toList());
     }
 
     public void addMode(Player player) {
         UUID uuid = player.getUniqueId();
         PlayerSession session = sessionManager.get(uuid);
-        if (isInMode(player.getUniqueId())) {
+        if (session.isInStaffMode()) {
             return;
         }
+
+        session.setStaffMode(true);
+        bungeeSessionManager.sendSynchronizationRequest(player, session);
 
         InventoryVault modeData = new InventoryVault(uuid, getContents(player), player.getInventory().getArmorContents(), player.getInventory().getExtraContents(),
             player.getLocation(), player.getExp(), player.getAllowFlight(), player.getGameMode(), session.getVanishType());
@@ -76,9 +82,13 @@ public class ModeCoordinator {
     }
 
     public void removeMode(Player player) {
-        if (!isInMode(player.getUniqueId())) {
+        PlayerSession session = sessionManager.get(player.getUniqueId());
+        if (!session.isInStaffMode()) {
             return;
         }
+
+        session.setStaffMode(false);
+        bungeeSessionManager.sendSynchronizationRequest(player, session);
 
         unsetPassive(player);
         staffMembersSavedData.remove(player.getUniqueId());

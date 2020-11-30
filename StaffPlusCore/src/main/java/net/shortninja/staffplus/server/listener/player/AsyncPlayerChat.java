@@ -60,10 +60,6 @@ public class AsyncPlayerChat implements Listener {
         List<PlayerSession> mentioned = new ArrayList<>();
 
         for (PlayerSession user : sessionManager.getAll()) {
-            if (!user.getPlayer().isPresent()) {
-                continue; // How?
-            }
-
             if (message.toLowerCase().contains(user.getName().toLowerCase())) {
                 mentioned.add(user);
             }

@@ -1,7 +1,7 @@
 package net.shortninja.staffplus.staff.mode.handler;
 
 import net.shortninja.staffplus.IocContainer;
-import net.shortninja.staffplus.staff.mode.ModeCoordinator;
+import net.shortninja.staffplus.staff.mode.StaffModeService;
 import net.shortninja.staffplus.staff.mode.InventoryVault;
 import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.util.MessageCoordinator;
@@ -26,7 +26,7 @@ public class ReviveHandler {
         UUID uuid = player.getUniqueId();
         InventoryVault inventoryVault;
 
-        inventoryVault = new InventoryVault(uuid, ModeCoordinator.getContents(player), player.getInventory().getArmorContents(), player.getInventory().getExtraContents());
+        inventoryVault = new InventoryVault(uuid, StaffModeService.getContents(player), player.getInventory().getArmorContents(), player.getInventory().getExtraContents());
 
         savedInventories.put(uuid, inventoryVault);
     }

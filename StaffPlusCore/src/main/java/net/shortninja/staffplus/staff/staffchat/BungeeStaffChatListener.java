@@ -28,8 +28,7 @@ public class BungeeStaffChatListener implements PluginMessageListener {
                 in.readFully(msgbytes);
 
                 DataInputStream msgin = new DataInputStream(new ByteArrayInputStream(msgbytes));
-                String staffChatMessage = null;
-                staffChatMessage = msgin.readUTF();
+                String staffChatMessage = msgin.readUTF();
                 IocContainer.getStaffChatService().handleBungeeMessage(staffChatMessage);
             }
         } catch (IOException e) {

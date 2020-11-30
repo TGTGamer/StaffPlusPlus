@@ -19,6 +19,7 @@ import net.shortninja.staffplus.server.chat.blacklist.censors.IllegalCharactersC
 import net.shortninja.staffplus.server.chat.blacklist.censors.IllegalWordsChatCensor;
 import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.server.data.config.Options;
+import net.shortninja.staffplus.session.bungee.BungeeSessionManager;
 import net.shortninja.staffplus.session.SessionLoader;
 import net.shortninja.staffplus.session.SessionManager;
 import net.shortninja.staffplus.staff.alerts.AlertCoordinator;
@@ -42,7 +43,7 @@ import net.shortninja.staffplus.staff.freeze.FreezeHandler;
 import net.shortninja.staffplus.staff.location.LocationRepository;
 import net.shortninja.staffplus.staff.location.MysqlLocationRepository;
 import net.shortninja.staffplus.staff.location.SqliteLocationRepository;
-import net.shortninja.staffplus.staff.mode.ModeCoordinator;
+import net.shortninja.staffplus.staff.mode.StaffModeService;
 import net.shortninja.staffplus.staff.protect.ProtectService;
 import net.shortninja.staffplus.staff.protect.database.MysqlProtectedAreaRepository;
 import net.shortninja.staffplus.staff.protect.database.ProtectedAreaRepository;
@@ -141,7 +142,7 @@ public class IocContainer {
     }
 
     public static ProtectService getProtectService() {
-        return initBean(ProtectService.class, () -> new ProtectService(getProtectedAreaRepository(), getMessage(), getModeCoordinator(), getMessages(), getOptions()));
+        return initBean(ProtectService.class, () -> new ProtectService(getProtectedAreaRepository(), getMessage(), getMessages(), getOptions(), getSessionManager()));
     }
 
     public static TeleportService getTeleportService() {
@@ -163,8 +164,8 @@ public class IocContainer {
         return initBean(SessionManager.class, () -> new SessionManager(getSessionLoader()));
     }
 
-    public static ModeCoordinator getModeCoordinator() {
-        return initBean(ModeCoordinator.class, () -> new ModeCoordinator(getMessage(), getOptions(), getMessages(), getSessionManager(), getVanishHandler()));
+    public static StaffModeService getStaffModeService() {
+        return initBean(StaffModeService.class, () -> new StaffModeService(getMessage(), getOptions(), getMessages(), getSessionManager(), getVanishHandler(), getBungeeSessionManager()));
     }
 
     public static PlayerManager getPlayerManager() {
@@ -193,7 +194,7 @@ public class IocContainer {
 
     public static VanishHandler getVanishHandler() {
         return initBean(VanishHandler.class, () -> new VanishHandler(StaffPlus.get().versionProtocol, getPermissionHandler(),
-            getMessage(), getOptions(), getMessages(), getSessionManager()));
+            getMessage(), getOptions(), getMessages(), getSessionManager(), getBungeeSessionManager()));
     }
 
     public static ChatHandler getChatHandler() {
@@ -284,5 +285,9 @@ public class IocContainer {
 
     public static AltDetectionService getAltDetectionService() {
         return initBean(AltDetectionService.class, () -> new AltDetectionService(getPlayerManager(), getPlayerIpRepository(), getAltDetectWhitelistRepository(), getPermissionHandler(), getOptions()));
+    }
+
+    public static BungeeSessionManager getBungeeSessionManager() {
+        return initBean(BungeeSessionManager.class, () -> new BungeeSessionManager(getOptions(), getSessionLoader()));
     }
 }

@@ -8,7 +8,7 @@ import net.shortninja.staffplus.server.data.config.Options;
 import net.shortninja.staffplus.session.PlayerSession;
 import net.shortninja.staffplus.session.SessionManager;
 import net.shortninja.staffplus.staff.alerts.AlertCoordinator;
-import net.shortninja.staffplus.staff.mode.ModeCoordinator;
+import net.shortninja.staffplus.staff.mode.StaffModeService;
 import net.shortninja.staffplus.staff.vanish.VanishHandler;
 import net.shortninja.staffplus.util.PermissionHandler;
 import org.bukkit.Bukkit;
@@ -26,7 +26,7 @@ public class PlayerJoin implements Listener {
     private final PermissionHandler permission = IocContainer.getPermissionHandler();
     private final Options options = IocContainer.getOptions();
     private final SessionManager sessionManager = IocContainer.getSessionManager();
-    private final ModeCoordinator modeCoordinator = IocContainer.getModeCoordinator();
+    private final StaffModeService staffModeService = IocContainer.getStaffModeService();
     private final VanishHandler vanishHandler = IocContainer.getVanishHandler();
     private final AlertCoordinator alertCoordinator = IocContainer.getAlertCoordinator();
     private final PlayerManager playerManager = IocContainer.getPlayerManager();
@@ -41,21 +41,21 @@ public class PlayerJoin implements Listener {
         playerManager.syncPlayer(event.getPlayer());
 
         Player player = event.getPlayer();
+        PlayerSession playerSession = sessionManager.get(player.getUniqueId());
 
-        manageUser(player);
+        manageUser(player, playerSession);
+
         vanishHandler.updateVanish();
-
-        if (permission.has(player, options.permissionMode) && options.modeEnableOnLogin) {
-            modeCoordinator.addMode(player);
+        if (permission.has(player, options.permissionMode) && (options.modeEnableOnLogin || playerSession.isInStaffMode())) {
+            staffModeService.addMode(player);
         }
 
         loadInv(player);
         delayedActions(player);
     }
 
-    private void manageUser(Player player) {
+    private void manageUser(Player player, PlayerSession playerSession) {
         UUID uuid = player.getUniqueId();
-        PlayerSession playerSession = sessionManager.get(uuid);
 
         if (!playerSession.getName().equals(player.getName())) {
             alertCoordinator.onNameChange(playerSession.getName(), player.getName());

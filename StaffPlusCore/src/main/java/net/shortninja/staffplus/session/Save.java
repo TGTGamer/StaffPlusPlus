@@ -20,6 +20,8 @@ public class Save {
 
     private void saveSession() {
         dataFile.set(session.getUuid() + ".name", session.getName());
+        dataFile.set(session.getUuid() + ".staffModeEnabled", session.isInStaffMode());
+        dataFile.set(session.getUuid() + ".vanishType", session.getVanishType().name());
         dataFile.set(session.getUuid() + ".glass-color", session.getGlassColor().name());
         dataFile.set(session.getUuid() + ".notes", new ArrayList<>(session.getPlayerNotes()));
         dataFile.set(session.getUuid() + ".alert-options", alertOptions());

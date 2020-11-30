@@ -1,9 +1,11 @@
 package net.shortninja.staffplus.session;
 
 import net.shortninja.staffplus.StaffPlus;
+import net.shortninja.staffplus.common.exceptions.BusinessException;
 import net.shortninja.staffplus.player.PlayerManager;
 import net.shortninja.staffplus.player.SppPlayer;
 import net.shortninja.staffplus.unordered.AlertType;
+import net.shortninja.staffplus.unordered.VanishType;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -24,7 +26,7 @@ public class SessionLoader {
         return loadSession(player.getUniqueId());
     }
 
-    PlayerSession loadSession(UUID playerUuid) {
+    public PlayerSession loadSession(UUID playerUuid) {
         return dataFile.contains(playerUuid.toString()) ? buildKnownSession(playerUuid) : buildNewSession(playerUuid);
     }
 
@@ -33,20 +35,29 @@ public class SessionLoader {
         if(!providedPlayer.isPresent()) {
             throw new RuntimeException("Trying to instantiate session for offline user");
         }
-        return new PlayerSession(uuid, providedPlayer.get().getUsername());
+        return new PlayerSession(providedPlayer.get());
     }
 
     private PlayerSession buildKnownSession(UUID uuid) {
-        String name = dataFile.getString(uuid + ".name");
         String glassColor = dataFile.getString(uuid + ".glass-color");
         Material glassMaterial = Material.WHITE_STAINED_GLASS_PANE;
-        if(glassColor != null && !glassColor.equals("0")) {
+        if (glassColor != null && !glassColor.equals("0")) {
             glassMaterial = Material.valueOf(glassColor);
         }
 
+        SppPlayer providedPlayer = playerManager.getOnlinePlayer(uuid)
+            .orElseThrow(() -> new BusinessException("Trying to instantiate session for offline user"));
+
         List<String> playerNotes = loadPlayerNotes(uuid);
         Map<AlertType, Boolean> alertOptions = loadAlertOptions(uuid);
-        return new PlayerSession(uuid, name, glassMaterial, playerNotes, alertOptions);
+        boolean staffModeEnabled = dataFile.getBoolean(uuid + ".staffModeEnabled", false);
+        VanishType vanishType = VanishType.valueOf(dataFile.getString(uuid + ".vanishType", VanishType.NONE.name()));
+        return new PlayerSession(providedPlayer,
+            glassMaterial,
+            playerNotes,
+            alertOptions,
+            staffModeEnabled,
+            vanishType);
     }
 
     private Map<AlertType, Boolean> loadAlertOptions(UUID uuid) {

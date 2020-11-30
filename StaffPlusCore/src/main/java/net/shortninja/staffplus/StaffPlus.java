@@ -81,6 +81,7 @@ public class StaffPlus extends JavaPlugin implements IStaffPlus {
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, BUNGEE_CORD_CHANNEL);
         this.getServer().getMessenger().registerIncomingPluginChannel(this, BUNGEE_CORD_CHANNEL, new BungeeStaffChatListener());
         this.getServer().getMessenger().registerIncomingPluginChannel(this, BUNGEE_CORD_CHANNEL, new BungeeBroadcastListener());
+        this.getServer().getMessenger().registerIncomingPluginChannel(this, BUNGEE_CORD_CHANNEL, IocContainer.getBungeeSessionManager());
 
         Plugin placeholderPlugin;
         if ((placeholderPlugin = Bukkit.getPluginManager().getPlugin("PlaceholderAPI")) != null) {
@@ -210,7 +211,7 @@ public class StaffPlus extends JavaPlugin implements IStaffPlus {
         tasks.cancel();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            IocContainer.getModeCoordinator().removeMode(player);
+            IocContainer.getStaffModeService().removeMode(player);
             IocContainer.getVanishHandler().removeVanish(player);
         }
 

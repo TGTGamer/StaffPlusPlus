@@ -3,6 +3,7 @@ package net.shortninja.staffplus.staff.mode.handler;
 import be.garagepoort.staffplusplus.craftbukkit.common.IProtocol;
 import net.shortninja.staffplus.IocContainer;
 import net.shortninja.staffplus.StaffPlus;
+import net.shortninja.staffplus.player.SppPlayer;
 import net.shortninja.staffplus.player.attribute.gui.CounterGui;
 import net.shortninja.staffplus.staff.examine.ExamineGui;
 import net.shortninja.staffplus.player.attribute.gui.hub.HubGui;
@@ -128,7 +129,7 @@ public class GadgetHandler {
     }
 
     public void onVanish(Player player, boolean shouldUpdateItem) {
-        ModeItem modeItem = IocContainer.getModeCoordinator().MODE_ITEMS[2];
+        ModeItem modeItem = IocContainer.getStaffModeService().MODE_ITEMS[2];
         ItemStack item = player.getItemInHand();
         int slot = JavaUtils.getItemSlot(player.getInventory(), item);
 
@@ -208,16 +209,12 @@ public class GadgetHandler {
     }
 
     public void updateGadgets() {
-        Set<UUID> modeUsers = IocContainer.getModeCoordinator().getModeUsers();
+        List<SppPlayer> modeUsers = IocContainer.getStaffModeService().getModeUsers();
 
-        for (UUID uuid : modeUsers) {
-            Optional<Player> player = sessionManager.get(uuid).getPlayer();
+        for (SppPlayer sppPlayer : modeUsers) {
+            Player player = sppPlayer.getPlayer();
 
-            if (!player.isPresent()) {
-                continue;
-            }
-
-            for (ItemStack item : player.get().getInventory().getContents()) {
+            for (ItemStack item : player.getInventory().getContents()) {
                 if (item == null) {
                     continue;
                 }

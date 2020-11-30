@@ -1,6 +1,7 @@
 package net.shortninja.staffplus.player.attribute.gui;
 
 import net.shortninja.staffplus.IocContainer;
+import net.shortninja.staffplus.player.SppPlayer;
 import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.session.PlayerSession;
 import net.shortninja.staffplus.unordered.IAction;
@@ -13,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class CounterGui extends PagedGui {
@@ -51,18 +51,17 @@ public class CounterGui extends PagedGui {
 
     @Override
     public List<ItemStack> getItems(Player staffViewing, int offset, int amount) {
-        List<Player> players = IocContainer.getOptions().modeCounterShowStaffMode ? getModePlayers() : JavaUtils.getOnlinePlayers();
+        List<Player> players = IocContainer.getOptions().modeCounterShowStaffMode ? getPlayersInStaffMode() : JavaUtils.getOnlinePlayers();
         return players.stream()
             .filter(p -> IocContainer.getPermissionHandler().has(p, IocContainer.getOptions().permissionMember))
             .map(p -> modePlayerItem(staffViewing, p))
             .collect(Collectors.toList());
     }
 
-    private List<Player> getModePlayers() {
-        return IocContainer.getModeCoordinator().getModeUsers()
+    private List<Player> getPlayersInStaffMode() {
+        return IocContainer.getStaffModeService().getModeUsers()
             .stream()
-            .map(Bukkit::getPlayer)
-            .filter(Objects::nonNull)
+            .map(SppPlayer::getPlayer)
             .collect(Collectors.toList());
     }
 

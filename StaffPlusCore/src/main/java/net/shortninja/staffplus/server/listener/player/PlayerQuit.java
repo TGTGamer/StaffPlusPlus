@@ -3,7 +3,7 @@ package net.shortninja.staffplus.server.listener.player;
 import net.shortninja.staffplus.IocContainer;
 import net.shortninja.staffplus.StaffPlus;
 import net.shortninja.staffplus.session.PlayerSession;
-import net.shortninja.staffplus.staff.mode.ModeCoordinator;
+import net.shortninja.staffplus.staff.mode.StaffModeService;
 import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.server.data.config.Options;
 import net.shortninja.staffplus.session.SessionManager;
@@ -23,7 +23,7 @@ public class PlayerQuit implements Listener {
     private final Options options = IocContainer.getOptions();
     private final Messages messages = IocContainer.getMessages();
     private final SessionManager sessionManager = IocContainer.getSessionManager();
-    private final ModeCoordinator modeCoordinator = IocContainer.getModeCoordinator();
+    private final StaffModeService staffModeService = IocContainer.getStaffModeService();
     private final VanishHandler vanishHandler = IocContainer.getVanishHandler();
     private final TraceService traceService = IocContainer.getTraceService();
 
@@ -36,10 +36,12 @@ public class PlayerQuit implements Listener {
         StaffPlus.get().versionProtocol.uninject(event.getPlayer());
 
         Player player = event.getPlayer();
-        manageUser(player);
-        modeCoordinator.removeMode(player);
+        PlayerSession playerSession = sessionManager.get(player.getUniqueId());
+
+        manageUser(player, playerSession);
+        staffModeService.removeMode(player);
         vanishHandler.removeVanish(player);
-        if (sessionManager.get(player.getUniqueId()).isFrozen()) {
+        if (playerSession.isFrozen()) {
             for (String command : options.logoutCommands) {
                 command = command.replace("%player%", player.getName());
                 Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
@@ -53,8 +55,7 @@ public class PlayerQuit implements Listener {
         traceService.stopAllTracesForPlayer(player.getUniqueId());
     }
 
-    private void manageUser(Player player) {
-        PlayerSession session = sessionManager.get(player.getUniqueId());
+    private void manageUser(Player player, PlayerSession session) {
         if (session.isFrozen()) {
             message.sendGroupMessage(messages.freezeLogout.replace("%player%", player.getName()), options.permissionFreeze, messages.prefixGeneral);
         }

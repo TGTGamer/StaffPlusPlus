@@ -4,7 +4,8 @@ import net.shortninja.staffplus.StaffPlus;
 import net.shortninja.staffplus.common.exceptions.BusinessException;
 import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.server.data.config.Options;
-import net.shortninja.staffplus.staff.mode.ModeCoordinator;
+import net.shortninja.staffplus.session.PlayerSession;
+import net.shortninja.staffplus.session.SessionManager;
 import net.shortninja.staffplus.staff.protect.config.ProtectConfiguration;
 import net.shortninja.staffplus.staff.protect.database.ProtectedAreaRepository;
 import net.shortninja.staffplus.util.MessageCoordinator;
@@ -23,20 +24,22 @@ public class ProtectService {
 
     private final ProtectedAreaRepository protectedAreaRepository;
     private final MessageCoordinator message;
-    private final ModeCoordinator modeCoordinator;
     private final Messages messages;
+    private final SessionManager sessionManager;
 
-    public ProtectService(ProtectedAreaRepository protectedAreaRepository, MessageCoordinator message, ModeCoordinator modeCoordinator, Messages messages, Options options) {
+    public ProtectService(ProtectedAreaRepository protectedAreaRepository, MessageCoordinator message, Messages messages, Options options, SessionManager sessionManager) {
         this.protectedAreaRepository = protectedAreaRepository;
         this.message = message;
-        this.modeCoordinator = modeCoordinator;
         this.messages = messages;
         this.protectedAreas = protectedAreaRepository.getProtectedAreas();
         protectConfiguration = options.protectConfiguration;
+        this.sessionManager = sessionManager;
     }
 
     public boolean isLocationProtect(Player player, Location location) {
-        if (modeCoordinator.isInMode(player.getUniqueId())) {
+        PlayerSession playerSession = sessionManager.get(player.getUniqueId());
+
+        if (playerSession.isInStaffMode()) {
             return false;
         }
 

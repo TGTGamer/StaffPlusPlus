@@ -8,6 +8,7 @@ import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.server.data.config.Options;
 import net.shortninja.staffplus.session.PlayerSession;
 import net.shortninja.staffplus.session.SessionManager;
+import net.shortninja.staffplus.session.bungee.BungeeSessionManager;
 import net.shortninja.staffplus.unordered.VanishType;
 import net.shortninja.staffplus.util.MessageCoordinator;
 import net.shortninja.staffplus.util.PermissionHandler;
@@ -17,7 +18,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class VanishHandler {
@@ -27,14 +27,16 @@ public class VanishHandler {
     private final Options options;
     private final Messages messages;
     private final SessionManager sessionManager;
+    private final BungeeSessionManager bungeeSessionManager;
 
-    public VanishHandler(IProtocol versionProtocol, PermissionHandler permission, MessageCoordinator message, Options options, Messages messages, SessionManager sessionManager) {
+    public VanishHandler(IProtocol versionProtocol, PermissionHandler permission, MessageCoordinator message, Options options, Messages messages, SessionManager sessionManager, BungeeSessionManager bungeeSessionManager) {
         this.versionProtocol = versionProtocol;
         this.permission = permission;
         this.message = message;
         this.options = options;
         this.messages = messages;
         this.sessionManager = sessionManager;
+        this.bungeeSessionManager = bungeeSessionManager;
 
         if (options.vanishMessageEnabled) {
             Bukkit.getScheduler().runTaskTimer(StaffPlus.get(), () -> {
@@ -60,18 +62,20 @@ public class VanishHandler {
 
         applyVanish(player, vanishType, true);
         session.setVanishType(vanishType);
+        bungeeSessionManager.sendSynchronizationRequest(player, session);
     }
 
     public void removeVanish(Player player) {
-        PlayerSession user = sessionManager.get(player.getUniqueId());
-        VanishType vanishType = user.getVanishType();
+        PlayerSession session = sessionManager.get(player.getUniqueId());
+        VanishType vanishType = session.getVanishType();
 
         if (vanishType == VanishType.NONE) {
             return;
         }
 
         unapplyVanish(player, vanishType, true);
-        user.setVanishType(VanishType.NONE);
+        session.setVanishType(VanishType.NONE);
+        bungeeSessionManager.sendSynchronizationRequest(player, session);
     }
 
     public List<Player> getVanished() {
@@ -86,11 +90,11 @@ public class VanishHandler {
     }
 
     public void updateVanish() {
-        for (PlayerSession user : sessionManager.getAll()) {
-            Optional<Player> player = user.getPlayer();
+        for (PlayerSession session : sessionManager.getAll()) {
+            Player player = session.getSspPlayer().getPlayer();
 
-            if (player.isPresent() && user.getVanishType() == VanishType.TOTAL) {
-                applyVanish(player.get(), user.getVanishType(), false);
+            if (session.getVanishType() == VanishType.TOTAL) {
+                applyVanish(player, session.getVanishType(), false);
             }
         }
     }

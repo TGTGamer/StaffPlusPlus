@@ -1,70 +1,55 @@
 package net.shortninja.staffplus.session;
 
-import net.shortninja.staffplus.IocContainer;
+import net.shortninja.staffplus.player.SppPlayer;
 import net.shortninja.staffplus.player.attribute.gui.IGui;
 import net.shortninja.staffplus.server.chat.ChatAction;
-import net.shortninja.staffplus.server.data.config.Options;
-import net.shortninja.staffplus.unordered.*;
-import org.bukkit.Bukkit;
+import net.shortninja.staffplus.unordered.AlertType;
+import net.shortninja.staffplus.unordered.VanishType;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class PlayerSession {
 
-    private final Options options = IocContainer.getOptions();
     private final UUID uuid;
     private final String name;
+    private boolean staffMode;
     private Material glassColor;
     private VanishType vanishType = VanishType.NONE;
     private IGui currentGui = null;
     private ChatAction chatAction = null;
     private Map<AlertType, Boolean> alertOptions = new HashMap<>();
     private List<String> playerNotes = new ArrayList<>();
+    private SppPlayer player;
 
     private boolean isChatting = false;
     private boolean isFrozen = false;
     private boolean isProtected = false;
 
-
-    private static Class<?> craftPlayerClass;
-    private static Class<?> entityPlayerClass;
-    private static Class<?> playerConnectionClass;
-    private static Method getHandleMethod;
-    private static Field playerConnectionField;
-    private static Field pingField;
-
-    public PlayerSession(UUID uuid, String name, Material glassColor, List<String> playerNotes, Map<AlertType, Boolean> alertOptions) {
-        this.uuid = uuid;
-        this.name = name;
+    public PlayerSession(SppPlayer player, Material glassColor, List<String> playerNotes, Map<AlertType, Boolean> alertOptions, boolean staffModeEnabled, VanishType vanishType) {
+        this.uuid = player.getId();
+        this.name = player.getUsername();
         this.glassColor = glassColor;
         this.playerNotes = playerNotes;
         this.alertOptions = alertOptions;
+        this.player = player;
+        this.staffMode = staffModeEnabled;
+        this.vanishType = vanishType;
     }
 
-    public PlayerSession(UUID uuid, String name) {
-        this.uuid = uuid;
+    public PlayerSession(SppPlayer player) {
+        this.uuid = player.getId();
         this.glassColor = Material.WHITE_STAINED_GLASS_PANE;
-        this.name = name;
+        this.name = player.getUsername();
+        this.player = player;
 
         for (AlertType alertType : AlertType.values()) {
             setAlertOption(alertType, true);
         }
     }
 
-    public PlayerSession(UUID uuid, String name, Material glassColor, List<String> playerNotes, Map<AlertType, Boolean> alertOptions, Player player) {
-        this.uuid = uuid;
-        this.name = name;
-        this.glassColor = glassColor;
-        this.playerNotes = playerNotes;
-        this.alertOptions = alertOptions;
-    }
-
-    public Optional<Player> getPlayer() {
-        return Optional.ofNullable(Bukkit.getPlayerExact(name));
+    public SppPlayer getSspPlayer() {
+        return player;
     }
 
     public UUID getUuid() {
@@ -139,18 +124,6 @@ public class PlayerSession {
         return isProtected;
     }
 
-    public static int getPing(Player player) {
-        try {
-            Object entityPlayer = getHandleMethod.invoke(player);
-            Object playerConnection = playerConnectionField.get(entityPlayer);
-
-            return (int) pingField.get(playerConnection);
-        } catch (ReflectiveOperationException e) {
-            Bukkit.getLogger().warning(e.getMessage());
-            return -1;
-        }
-    }
-
     public void setFrozen(boolean isFrozen) {
         this.isFrozen = isFrozen;
     }
@@ -161,6 +134,14 @@ public class PlayerSession {
         } else {
             alertOptions.put(alertType, isEnabled);
         }
+    }
+
+    public void setStaffMode(boolean staffMode) {
+        this.staffMode = staffMode;
+    }
+
+    public boolean isInStaffMode() {
+        return staffMode;
     }
 
     public void addPlayerNote(String note) {
