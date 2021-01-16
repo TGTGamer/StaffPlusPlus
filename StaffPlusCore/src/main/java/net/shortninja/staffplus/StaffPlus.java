@@ -33,6 +33,8 @@ import net.shortninja.staffplus.staff.protect.ProtectListener;
 import net.shortninja.staffplus.staff.reporting.ReportChangeReporterNotifier;
 import net.shortninja.staffplus.staff.reporting.ReportListener;
 import net.shortninja.staffplus.staff.staffchat.BungeeStaffChatListener;
+import net.shortninja.staffplus.staff.ticketing.TicketChangeCreatorNotifier;
+import net.shortninja.staffplus.staff.ticketing.TicketListener;
 import net.shortninja.staffplus.staff.warn.WarnListener;
 import net.shortninja.staffplus.staff.warn.WarningClearTask;
 import net.shortninja.staffplus.util.Metrics;
@@ -194,6 +196,8 @@ public class StaffPlus extends JavaPlugin implements IStaffPlus {
         new WarnListener();
         new ReportListener();
         new ReportChangeReporterNotifier();
+        new TicketListener();
+        new TicketChangeCreatorNotifier();
         new ExamineInventoryMove();
         new ChestGuiMove();
     }

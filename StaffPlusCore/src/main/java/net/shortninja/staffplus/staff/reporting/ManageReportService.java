@@ -5,7 +5,6 @@ import net.shortninja.staffplus.StaffPlus;
 import net.shortninja.staffplus.common.exceptions.BusinessException;
 import net.shortninja.staffplus.common.exceptions.NoPermissionException;
 import net.shortninja.staffplus.event.*;
-import net.shortninja.staffplus.player.PlayerManager;
 import net.shortninja.staffplus.player.SppPlayer;
 import net.shortninja.staffplus.server.data.config.Messages;
 import net.shortninja.staffplus.server.data.config.Options;
@@ -16,7 +15,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.bukkit.Bukkit.getScheduler;
 
@@ -28,35 +30,17 @@ public class ManageReportService {
     private final MessageCoordinator message = IocContainer.getMessage();
     private final Options options = IocContainer.getOptions();
     private final Messages messages;
-    private final PlayerManager playerManager;
     private final ReportService reportService;
     private final ReportRepository reportRepository;
 
-    public ManageReportService(ReportRepository reportRepository, Messages messages, PlayerManager playerManager, ReportService reportService) {
+    public ManageReportService(ReportRepository reportRepository, Messages messages, ReportService reportService) {
         this.reportRepository = reportRepository;
         this.messages = messages;
-        this.playerManager = playerManager;
         this.reportService = reportService;
-    }
-
-    public Collection<Report> getUnresolvedReports(int offset, int amount) {
-        return reportRepository.getUnresolvedReports(offset, amount);
-    }
-
-    public Collection<Report> getAssignedReports(UUID staffUuid, int offset, int amount) {
-        return reportRepository.getAssignedReports(staffUuid, offset, amount);
     }
 
     public void clearReports(SppPlayer player) {
         reportRepository.removeReports(player.getId());
-    }
-
-    private SppPlayer getUser(UUID playerUuid) {
-        Optional<SppPlayer> player = playerManager.getOnOrOfflinePlayer(playerUuid);
-        if (!player.isPresent()) {
-            throw new BusinessException(messages.playerNotRegistered, messages.prefixGeneral);
-        }
-        return player.get();
     }
 
     public void acceptReport(Player player, int reportId) {

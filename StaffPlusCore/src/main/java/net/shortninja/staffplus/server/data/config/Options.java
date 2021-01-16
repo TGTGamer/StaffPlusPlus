@@ -34,6 +34,10 @@ import net.shortninja.staffplus.staff.reporting.config.ReportingModuleLoader;
 import net.shortninja.staffplus.staff.staffchat.config.StaffChatConfiguration;
 import net.shortninja.staffplus.staff.staffchat.config.StaffChatModuleLoader;
 import net.shortninja.staffplus.staff.teleport.config.LocationLoader;
+import net.shortninja.staffplus.staff.ticketing.config.ManageTicketsConfiguration;
+import net.shortninja.staffplus.staff.ticketing.config.ManageTicketsModuleLoader;
+import net.shortninja.staffplus.staff.ticketing.config.TicketingConfiguration;
+import net.shortninja.staffplus.staff.ticketing.config.TicketsModuleLoader;
 import net.shortninja.staffplus.staff.tracing.config.TraceConfiguration;
 import net.shortninja.staffplus.staff.tracing.config.TraceModuleLoader;
 import net.shortninja.staffplus.staff.warn.config.WarningConfiguration;
@@ -71,7 +75,9 @@ public class Options implements IOptions {
     public AuthenticationConfiguration authenticationConfiguration;
     public InfractionsConfiguration infractionsConfiguration;
     public ReportConfiguration reportConfiguration;
+    public TicketingConfiguration ticketingConfiguration;
     public ManageReportConfiguration manageReportConfiguration;
+    public ManageTicketsConfiguration manageTicketsConfiguration;
     public WarningConfiguration warningConfiguration;
     public BlackListConfiguration blackListConfiguration;
     public TraceConfiguration traceConfiguration;
@@ -135,6 +141,7 @@ public class Options implements IOptions {
     public String permissionReport;
     public String permissionReportBypass;
     public String permissionReportUpdateNotifications;
+    public String permissionTicketUpdateNotifications;
     public String permissionWarn;
     public String permissionWarnBypass;
     public String permissionVanishTotal;
@@ -234,7 +241,9 @@ public class Options implements IOptions {
         authenticationConfiguration = new AuthenticationConfigurationLoader().loadConfig();
         infractionsConfiguration = new InfractionsModuleLoader().loadConfig();
         reportConfiguration = new ReportingModuleLoader().loadConfig();
+        ticketingConfiguration = new TicketsModuleLoader().loadConfig();
         manageReportConfiguration = new ManageReportingModuleLoader().loadConfig();
+        manageTicketsConfiguration = new ManageTicketsModuleLoader().loadConfig();
         warningConfiguration = new WarningModuleLoader().loadConfig();
         blackListConfiguration = new BlackListConfigurationLoader().loadConfig();
         traceConfiguration = new TraceModuleLoader().loadConfig();
@@ -301,6 +310,7 @@ public class Options implements IOptions {
         permissionReport = config.getString("permissions.report");
         permissionReportBypass = config.getString("permissions.report-bypass");
         permissionReportUpdateNotifications = config.getString("permissions.report-update-notifications");
+        permissionTicketUpdateNotifications = config.getString("permissions.ticket-update-notifications");
         permissionWarn = config.getString("permissions.warn");
         permissionWarnBypass = config.getString("permissions.warn-bypass");
         permissionVanishTotal = config.getString("permissions.vanish-total");

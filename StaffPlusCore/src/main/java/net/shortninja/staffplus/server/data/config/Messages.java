@@ -15,6 +15,7 @@ public class Messages {
     public String prefixGeneral = config.getString("general-prefix");
     public String prefixProtect = config.getString("protect-prefix", "&dProtected &8»");
     public String prefixReports = config.getString("reports-prefix");
+    public String prefixTickets = config.getString("tickets-prefix");
     public String prefixWarnings = config.getString("warnings-prefix");
     public String prefixStaffChat = config.getString("staff-chat-prefix");
     public String prefixTrace = config.getString("trace-prefix", "&dTrace &8»");
@@ -43,6 +44,13 @@ public class Messages {
 
     public String enabled = config.getString("enabled", "enabled");
     public String disabled = config.getString("disabled", "disabled");
+
+
+    /*
+     * Tickets
+     */
+    public String ticketCreated = config.getString("ticket-created");
+    public String ticketCreateStaff = config.getString("ticket-created-staff");
 
     /*
      * Infractions

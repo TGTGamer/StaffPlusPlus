@@ -72,6 +72,11 @@ import net.shortninja.staffplus.staff.reporting.gui.ReportItemBuilder;
 import net.shortninja.staffplus.staff.staffchat.StaffChatChatInterceptor;
 import net.shortninja.staffplus.staff.staffchat.StaffChatService;
 import net.shortninja.staffplus.staff.teleport.TeleportService;
+import net.shortninja.staffplus.staff.ticketing.ManageTicketService;
+import net.shortninja.staffplus.staff.ticketing.TicketService;
+import net.shortninja.staffplus.staff.ticketing.database.MysqlTicketRepository;
+import net.shortninja.staffplus.staff.ticketing.database.SqliteTicketRepository;
+import net.shortninja.staffplus.staff.ticketing.database.TicketRepository;
 import net.shortninja.staffplus.staff.tracing.TraceChatInterceptor;
 import net.shortninja.staffplus.staff.tracing.TraceService;
 import net.shortninja.staffplus.staff.tracing.TraceWriterFactory;
@@ -107,6 +112,12 @@ public class IocContainer {
         return initRepositoryBean(ReportRepository.class,
             () -> new MysqlReportRepository(getPlayerManager()),
             () -> new SqliteReportRepository(getPlayerManager()));
+    }
+
+    public static TicketRepository getTicketRepository() {
+        return initRepositoryBean(TicketRepository.class,
+            MysqlTicketRepository::new,
+            SqliteTicketRepository::new);
     }
 
     public static WarnRepository getWarnRepository() {
@@ -179,13 +190,20 @@ public class IocContainer {
     public static ReportService getReportService() {
         return initBean(ReportService.class, () -> new ReportService(getReportRepository(), getMessages(), getPlayerManager()));
     }
+    public static TicketService getTicketService() {
+        return initBean(TicketService.class, () -> new TicketService(getTicketRepository(), getMessages(), getPlayerManager()));
+    }
 
     public static InfractionsService getInfractionsService() {
         return initBean(InfractionsService.class, () -> new InfractionsService(getInfractionProviders()));
     }
 
     public static ManageReportService getManageReportService() {
-        return initBean(ManageReportService.class, () -> new ManageReportService(getReportRepository(), getMessages(), getPlayerManager(), getReportService()));
+        return initBean(ManageReportService.class, () -> new ManageReportService(getReportRepository(), getMessages(), getReportService()));
+    }
+
+    public static ManageTicketService getManageTicketService() {
+        return initBean(ManageTicketService.class, () -> new ManageTicketService(getTicketRepository(), getMessages(), getPlayerManager(), getTicketService()));
     }
 
     public static ProtectService getProtectService() {

@@ -66,7 +66,6 @@ locations:
 # +------------------------------------------------------+ #
 ############################################################
 
-# No permission required for regular users, requires "permissions.report" permission for moderator commands.
 reports-module:
   # Whether or not the plugin will use "/report" features.
   enabled: true
@@ -89,6 +88,33 @@ reports-module:
       # The reporter will be notified the moment he comes online that he has reports OPEN or IN_PROGRESS
       notify-on-join: true
       # Enable status change notifications. Whenever a staff member changes the status to one of the specified statuses, the reporter will be notified (if he is online).
+      # Statuses must be semi-colon separated
+      status-change-notifications: IN_PROGRESS;RESOLVED;REJECTED
+
+############################################################
+# +------------------------------------------------------+ #
+# |                       Tickets                        | #
+# +------------------------------------------------------+ #
+############################################################
+
+tickets-module:
+  # Whether or not the plugin will use "/tickets" features.
+  enabled: true
+
+  # The sound that is played to staff when someone created a ticket.
+  # Set to "NONE" to disable.
+  sound: ORB_PICKUP
+
+  # The cooldown, in seconds, for using "/create-ticket".
+  cooldown: 10
+
+  # Whether or not a staff member must provide a reason when resolving/rejecting a ticket
+  closing-reason-enabled: true
+
+  creator-notifications:
+      # The creator will be notified the moment he comes online that he has tickets OPEN or IN_PROGRESS
+      notify-on-join: true
+      # Enable status change notifications. Whenever a staff member changes the status to one of the specified statuses, the creator will be notified (if he is online).
       # Statuses must be semi-colon separated
       status-change-notifications: IN_PROGRESS;RESOLVED;REJECTED
 
@@ -319,24 +345,6 @@ protect-module:
 
 ############################################################
 # +------------------------------------------------------+ #
-# |                       Tickets                        | #
-# +------------------------------------------------------+ #
-############################################################
-
-# Requires no permission for opening tickets and requires "permissions.ticket" permission for managing.
-tickets-module:
-  # Whether or not the plugin will use ticket features.
-  enabled: true
-
-  # Whether or not additional responses to tickets will be sent to all staff members.
-  # The initial ticket will be sent to all staff members no matter what.
-  global: false
-
-  # Whether or not multiple staff members will be able to respond to a single ticket.
-  keep-open: false
-
-############################################################
-# +------------------------------------------------------+ #
 # |                  ALT ACCOUNT DETECTION               | #
 # +------------------------------------------------------+ #
 ############################################################
@@ -545,6 +553,15 @@ staff-mode:
     my-reports-lore: "&7Shows reports currently assigned to you."
     closed-reports-title: "&bClosed reports"
     closed-reports-lore: "&7History of all closed reports."
+
+    tickets-gui: true
+    tickets-name: "&bUnresolved tickets GUI"
+    tickets-title: "&bUnresolved tickets"
+    tickets-lore: "&7Shows all open tickets."
+    my-tickets-title: "&bTickets assigned to you"
+    my-tickets-lore: "&7Shows tickets currently assigned to you."
+    closed-tickets-title: "&bClosed tickets"
+    closed-tickets-lore: "&7History of all closed tickets."
 
     miner-gui: true
     miner-title: "&bUnderground users"
@@ -782,6 +799,25 @@ permissions:
   # Permission to open to my reports gui
   view-my-reports: "staff.report.view-my-reports"
 
+
+  # Permission for creating tickets.
+  tickets:
+      create: "staff.tickets.create"
+      # All permission for managing reports
+      manage:
+          view: "staff.tickets.manage.view"
+          delete: "staff.tickets.manage.delete"
+          accept: "staff.tickets.manage.accept"
+          resolve: "staff.tickets.manage.resolve"
+          reject: "staff.tickets.manage.reject"
+
+
+  # Permission for receiving notifications when a ticket is accepted/deleted/closed
+  ticket-update-notifications: "staff.ticket.update.notifications"
+
+  # Permission to open to my tickets gui
+  view-my-tickets: "staff.ticket.view-my-tickets"
+
   # Permission to open to my warnings gui
   view-my-warnings: "staff.warn.view-my-warnings"
 
@@ -811,9 +847,6 @@ permissions:
 
   # Permission for bypassing the word blacklist.
   blacklist: "staff.blacklist"
-
-  # Permission for managing tickets.
-  tickets: "staff.tickets"
 
   # Permission for receiving mention alerts.
   mention: "staff.alerts.mention"
@@ -1028,6 +1061,16 @@ commands:
         gui: "manage-reports"
         # The command for managing reports specifically targeting a player.
         cli: "reports"
+
+  # The command for opening the my reports gui
+  my-tickets: "my-tickets"
+
+  # The command for creating tickets.
+  create-ticket: "create-ticket"
+
+  tickets.manage:
+        #Command to open the manage reports gui
+        gui: "manage-tickets"
 
   # The command for warning players
   warn: "warn"

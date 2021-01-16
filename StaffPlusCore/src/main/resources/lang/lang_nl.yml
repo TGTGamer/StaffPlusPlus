@@ -76,6 +76,16 @@ input-accepted: "&bAanvaard en ingediende"
 
 enabled: "ingeschakeld"
 disabled: "uitgeschakeld"
+
+############################################################
+# +------------------------------------------------------+ #
+# |                      Tickets                     | #
+# +------------------------------------------------------+ #
+############################################################
+
+ticket-created: "&bCreated ticket with ID &7%id% &bwith description: &7%description%&b."
+ticket-created-staff: "&7%creator% &bhas created ticket &7%id% &bwith description: &7%description%&b."
+
 ############################################################
 # +------------------------------------------------------+ #
 # |                     Overtredingen                    | #

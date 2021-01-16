@@ -40,7 +40,9 @@ public class SqLiteMigrations implements SqlMigrations {
         new V24_AlterWarningTableAddTimestampMigration(),
         new V25_AlterReportsTableAddDeletedMigration(),
         new V26_CreateMutedPlayersTableMigration(),
-        new V27_CreateKickedPlayersTableMigration());
+        new V27_CreateKickedPlayersTableMigration(),
+        new V28_DropOldTicketsTableMigration(),
+        new V29_CreateNewTicketsTableMigration());
 
     private SqLiteMigrations() {
     }
